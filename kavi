@@ -1,0 +1,90 @@
+from tkinter import Y
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+from dash import Dash, html, dcc
+import plotly.express as px
+
+# The pandas will read the file 
+data = pd.read_csv("fAssignment\survey.csv")
+
+#To print the data 
+print(data)
+
+pd.set_option("display.max_rows", 55)
+pd.set_option("display.max_columns", 55)
+
+
+prime_data = data[["Age", "Gender", "Country", "family_history", "treatment"
+                    ,"mental_health_consequence", "phys_health_consequence"
+                     , "remote_work", "tech_company"]]
+
+
+#To print the data 
+print(prime_data)
+
+# The Correction of mental and physical consequence column
+#To access the multiple columns we are using the LOC
+
+prime_data.loc[(prime_data['phys_health_consequence'].isin(['Yes', 'Maybe'])),"phys_health_consequence"] = "Y"
+prime_data.loc[(prime_data['mental_health_consequence']).isin(['Yes', 'Maybe']),"mental_health_consequence"] = "Y"
+
+
+# The Correction of Country column
+
+prime_data.loc[(prime_data['Country']).isin(['United States' ,'Mexico', 'canada' ]),"Country"] = "Northern_America"
+
+prime_data.loc[(prime_data['Country']).isin(['South Africa' ,'Italy' ,'Latvia',
+                        'Colombia', 'Sweden' ,'Romania' ,'Belgium' ,'Zimbabwe', 'Spain' ,'Hungary',
+                        'Israel', 'Denmark', 'Uruguay' ,'Norway' ,'Bosnia and Herzegovina', 'Georgia' ,'Czech Republic']),"Country"] = "Africa"
+
+prime_data.loc[(prime_data['Country']).isin(['\Germany' ,'France' ,'Bulgaria' ,'Portugal',
+                         'Netherlands' ,'Switzerland' ,'Poland', 'United Kingdom']),"Country"] = "Europe"
+
+prime_data.loc[(prime_data['Country']).isin(['Australia' ,'Russia', 'Brazil', 'Slovenia',
+                        'Costa Rica' ,'Austria' ,'Ireland', 'New Zealand' ]),"Country"] = "Islands"
+
+prime_data.loc[(prime_data['Country']).isin(['Thailand' ,'Philippines' ,'Finland' ,'Croatia',
+                         'Japan' ,'Nigeria' ,'India', 'Bahamas','china', 'Singapore']),"Country"] = "Asia"
+                        
+# The Correction of gender column
+
+prime_data.loc[(prime_data['Gender'].isin(['M', 'Male' ,'male','m' ,'Male-ish', 'maile', 'Cis Male',
+                        'Mal','Male (CIS)', 'Make','Man' ,'Male ',
+                        'Msle', 'male leaning androgynous',  'Mail', 'cis male', 'Malr', 'Cis Man',
+                        'Cis Man','ostensibly male'])),"Gender"] = "Male"
+
+prime_data.loc[(prime_data['Gender'].isin(['woman','Female', 'f','F', 'cis-female/femme',
+                        'Woman','female','Female ' ,'Femake',  'Female (cis)','Cis Female',
+                         'femail','p' ])),"Gender"] = "Female"
+
+prime_data.loc[(prime_data['Gender'].isin(['Trans-female','something kinda male?','queer/she/they' ,'Nah',
+                        'non-binary' ,'All' ,'Enby', 'Agender', 'Genderqueer', 'Androgyne', 'fluid','queer',
+                        'Guy (-ish) ^_^', 'Neuter','Trans woman',  'Female (trans)', 'queer',
+                       'A little about you', 'ostensibly male, unsure what that really means'])),"Gender"] = "The Non-Bin people"
+
+#print(prime_data['Gender'].unique())   
+#print(prime_data['phys_health_consequence'].unique())
+
+# Using the groupby function
+prime_data.groupby('Country')
+
+#Using the Print function
+print(prime_data)
+
+Diagram = px.bar(prime_data, x = "Gender", y = "mental_health_consequence", color ="Country", barmode = "group" )
+visual = Dash(__name__)
+
+visual.layout = html.Div(children=[
+    html.H1(children='Hi Dash'),
+    html.Div(children = '''The Dash: The web application frame work of data.'''),
+     dcc.Graph(id = 'example-graph',
+        figure = Diagram),
+
+])
+
+if __name__ == '_prime_':
+    visual.run_server(debug= True)
+
+
